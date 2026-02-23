@@ -3,3 +3,5 @@ node_modules/
 *-auth.json
 .vscode/
 .conda-env
+.claude/settings.local.json
+*.bak
