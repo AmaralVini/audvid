@@ -1,4 +1,19 @@
 Planeje. Estou fazendo cortes de vídeos, mas eles estão apresentando cliques/ruídos próximos aos nos pontos de corte. Meu objetivo é criar uma ferramenta para gerar áudios sem ruídos de cada projeto como esse do exemplo. Para isso, quero que a ferramenta identifique todos os pontos de corte do videotrack. Então a ferramenta vai exportar os áudios dos vídeos do videotrack (pode ser que tenha 1 mesmo vídeo ou vários) e cortar os áudios exatamente nos mesmos pontos de corte. Então vai aplicar fadein e fadeout de poucos milisegundos nos trechos de áudio cortados. E por fim montar o áudio completo para coincidir com o videotrack. No final, o áudio deve ter exatamente a mesma duração do videotrack do projeto.
 tenho instalado ferramentas como ffmpeg, audacity, jq e outras. Se necessário, você pode instalar e usar outras ferramentas, avalie as mais apropriadas. 
 
+Vamos criar uma funcionalidade de adição de legendas ao .VPD a partir de um audio de entrada, preferivelmente o audio enhanced resultado do vpd-enhance-audio.py.
+O workflow completo é fazer o vpd enhance audio e com o audio enhanced:
+- transcrever (usar whisper para gerar timestamps palavra-por-palavra)
+- insere subtitles (palavra-por-palavra) com um estilo customizado ao .vpd. 
+Assim, deve haver um script "pai" que já aplica de uma só vez o audio enhance e a geração de legendas.
+
+A inserção de legendas deve ter opções, para a quantidade de linhas, limite de caracteres por linha, estilo, e demais opções que entender necessárias. 
+
+Além disso, Crie um estilo customizado similar ao usado por padrão no OpusClip (pesquisar). Ele usa 1 ou 2 linhas e ressalta a palavra que está sendo falada, mudando seu tamanho e cor. A cada palavra ressaltada, aplique um efeito de zoom similar ao credit4 — usa \fscx60\fscy60 → \fscx100\fscy100 (zoom de 80% a 100%) no início de cada palavra destacada, durando 50ms no total.
+
+Vamos usar o vpd da pasta C:\Users\vinia\Videos\ViP\CRIATIVOS2\teste2 para testar.
+
+
+
+
 

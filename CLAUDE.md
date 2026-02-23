@@ -47,7 +47,8 @@ As credenciais de sudo/admin do WSL estao no arquivo `.env` na raiz do projeto. 
 
 ## Documentacao
 
-- `docs/vpd-format.md` — Documentacao completa do formato .vpd (engenharia reversa)
+- `docs/vpd-format.md` — .vpd file format: complete JSON structure (reverse engineering)
+- `docs/vpd-vlogger-reference.md` — VideoProc Vlogger program reference: presets, styles, effects, Lua API, codecs
 - `docs/playwright-setup.md` — Setup e fluxo de autenticacao com Playwright (storageState)
 
 ## Estrutura de Arquivos
@@ -64,7 +65,8 @@ audvid/
     package.json                    # Dependencias Node
     package-lock.json
   docs/                             # Documentacao geral
-    vpd-format.md                   # Formato .vpd (engenharia reversa)
+    vpd-format.md                   # .vpd file format (reverse engineering)
+    vpd-vlogger-reference.md        # VideoProc Vlogger program reference
     playwright-setup.md             # Setup Playwright + Adobe
   CLAUDE.md                         # Este arquivo
   .env                              # Credenciais (nao commitado)
