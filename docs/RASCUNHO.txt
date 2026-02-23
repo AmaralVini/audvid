@@ -16,4 +16,16 @@ Vamos usar o vpd da pasta C:\Users\vinia\Videos\ViP\CRIATIVOS2\teste2 para testa
 
 
 
+im, tudo certo.                                                                  
+  Vamos fazer algumas modificações:                                                 
+  Separe cada linha em dois subtitle tracks diferentes e intercale as palavras em   
+  cada track, alternando de um para outro.                                          
+  Crie uma regra para quando usar apenas 1 linha, com base na quantidade de         
+  caracteres por segundo. Quando for alto, usar 2 linhas, quando for baixo, usar 1  
+  .inha.                                                                            
+  Como default, máximo de 15 caracteres por linha.                                  
+  Aumente a fonte size default para 100, sendo 130 quando em destaque.              
+  Aplique como padrão o estilo my-style-1 aos subtitles.     
+
+
 

@@ -110,7 +110,7 @@ def parse_whisper_json(json_path):
         data = json.load(f)
 
     words = []
-    for segment in data.get("segments", []):
+    for seg_idx, segment in enumerate(data.get("segments", [])):
         for w in segment.get("words", []):
             text = w.get("word", "").strip()
             if text:
@@ -118,6 +118,7 @@ def parse_whisper_json(json_path):
                     "word": text,
                     "start": w["start"],
                     "end": w["end"],
+                    "segment": seg_idx,
                 })
     return words
 
@@ -133,7 +134,7 @@ def transcribe(audio_path, model, language, vpd_dir):
 
     # Reutilizar transcricao existente
     if os.path.exists(json_path):
-        print(f"  Transcricao existente: {os.path.basename(json_path)}")
+        print(f"  Transcricao existente: {json_path}")
         words = parse_whisper_json(json_path)
         print(f"  Palavras: {len(words)}")
         return words
@@ -173,7 +174,7 @@ def transcribe(audio_path, model, language, vpd_dir):
 
     words = parse_whisper_json(json_path)
     print(f"  Palavras transcritas: {len(words)}")
-    print(f"  Salvo: {os.path.basename(json_path)}")
+    print(f"  Salvo: {json_path}")
     return words
 
 
@@ -204,10 +205,19 @@ def group_words_into_screens(words, max_lines, max_chars, gap_threshold, highlig
     current_lines = [[]]  # lista de listas de palavras
     current_line_len = 0
     prev_end = words[0]["start"]
+    prev_segment = words[0].get("segment")
     force_new_line = False  # flag: proxima palavra deve iniciar nova linha
 
     for w in words:
         word_len = len(w["word"])
+        cur_segment = w.get("segment")
+
+        # Mudou de segment -> nova tela
+        if current_lines[0] and cur_segment is not None and cur_segment != prev_segment:
+            screens.append(_build_screen(current_lines))
+            current_lines = [[]]
+            current_line_len = 0
+            force_new_line = False
 
         # Gap grande -> nova tela
         if current_lines[0] and w["start"] - prev_end > gap_threshold:
@@ -247,6 +257,7 @@ def group_words_into_screens(words, max_lines, max_chars, gap_threshold, highlig
         current_lines[-1].append(w)
         current_line_len = current_line_len + 1 + word_len if current_line_len > 0 else word_len
         prev_end = w["end"]
+        prev_segment = cur_segment
 
         # Marcar fim de frase para proxima palavra
         if _is_sentence_end(w["word"]):
