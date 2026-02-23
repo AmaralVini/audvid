@@ -186,14 +186,19 @@ def _is_sentence_end(word_text):
     return word_text.rstrip().endswith((".", "?", "!"))
 
 
-def group_words_into_screens(words, max_lines, max_chars, gap_threshold):
+def group_words_into_screens(words, max_lines, max_chars, gap_threshold, highlight_scale=100):
     """Agrupa palavras em telas respeitando limites de caracteres, linhas e pausas.
 
     Quando uma palavra termina frase (., ?, !), a proxima frase inicia em nova linha.
     Se max_lines ja foi atingido, inicia nova tela.
+
+    highlight_scale: escala % do destaque (ex: 120). Calcula ponto de quebra considerando
+    o pior caso (maior palavra da linha destacada), para que \\N fique fixo entre blocos.
     """
     if not words:
         return []
+
+    chars_per_line = max_chars // max_lines if max_lines > 1 else max_chars
 
     screens = []
     current_lines = [[]]  # lista de listas de palavras
@@ -223,8 +228,12 @@ def group_words_into_screens(words, max_lines, max_chars, gap_threshold):
             force_new_line = False
 
         # Palavra excede max_chars na linha atual -> nova linha
+        # Considerar pior caso: maior palavra da linha destacada a highlight_scale
+        candidate_words = [w2["word"] for w2 in current_lines[-1]] + [w["word"]]
+        max_word_len = max(len(cw) for cw in candidate_words)
+        extra = max_word_len * (highlight_scale / 100 - 1)
         needed = word_len if current_line_len == 0 else current_line_len + 1 + word_len
-        if current_line_len > 0 and needed > max_chars:
+        if current_line_len > 0 and needed + extra > chars_per_line:
             # Nova linha
             if len(current_lines) >= max_lines:
                 # Max linhas atingido -> nova tela
@@ -294,11 +303,12 @@ def build_highlight_text(screen, highlight_idx, ass_color, base_color, font_size
 # Geracao de TextEffectBlocks
 # ---------------------------------------------------------------------------
 
-def create_text_effect_blocks(screen, style_config, project_width, project_height):
+def create_text_effect_blocks(screen, style_config, project_width, project_height, fps):
     """Cria um TextEffectBlock por palavra da tela.
 
     Cada bloco e independente na timeline, permitindo ajuste de timing na GUI.
     Todos mostram o texto completo da tela, com highlight na palavra correspondente.
+    Timings sao snapped para boundaries de frame (fps do projeto).
     """
     sc = style_config
     ass_highlight = hex_to_ass_color(sc["highlight_color"])
@@ -319,7 +329,7 @@ def create_text_effect_blocks(screen, style_config, project_width, project_heigh
     blocks = []
 
     for i, w in enumerate(words):
-        # Timing absoluto na timeline
+        # Timing absoluto na timeline (direto do Whisper, sem snap)
         start_ms = w["start"] * 1000
         if i + 1 < len(words):
             end_ms = words[i + 1]["start"] * 1000
@@ -330,7 +340,7 @@ def create_text_effect_blocks(screen, style_config, project_width, project_heigh
         text = build_highlight_text(screen, i, ass_highlight, ass_base, sc["font_size"], highlight_font_size)
 
         dialogue = {
-            "idx": 0, "layer": 0, "start": 0, "end": int(duration_ms),
+            "idx": 0, "layer": 0, "start": 0, "end": int(duration_ms) - 1,
             "style": "style1", "name": "",
             "ml": sc["margin"], "mr": sc["margin"], "mv": 0,
             "effect": "", "text": text, "animation": 0, "has_default": False,
@@ -360,7 +370,7 @@ def create_text_effect_blocks(screen, style_config, project_width, project_heigh
             "type": "TextEffectBlock",
             "background": 4229689855,
             "foreground": 1216461823,
-            "status": 0,
+            "status": 1,
             "uuid": block_uuid,
             "tstart": start_ms,
             "tduration": duration_ms,
@@ -373,7 +383,7 @@ def create_text_effect_blocks(screen, style_config, project_width, project_heigh
                 "height": project_height,
                 "version": 1,
                 "leftTimestamp": -0.1,
-                "rightTimestamp": duration_ms / 1000.0 + 0.1,
+                "rightTimestamp": duration_ms / 1000.0 - 0.1,
             },
         })
 
@@ -384,12 +394,21 @@ def create_text_effect_blocks(screen, style_config, project_width, project_heigh
 # Modificacao do VPD
 # ---------------------------------------------------------------------------
 
-def get_project_dimensions(vpd_data):
-    """Extrai dimensoes do projeto do projinfo."""
+def get_project_info(vpd_data):
+    """Extrai dimensoes e fps do projeto do projinfo."""
     player = vpd_data.get("projinfo", {}).get("player", {})
     width = player.get("resolutionW", 1080)
     height = player.get("resolutionH", 1920)
-    return width, height
+    fps_num = player.get("frameRateNum", 30)
+    fps_den = player.get("frameRateDen", 1)
+    fps = fps_num / fps_den
+    return width, height, fps
+
+
+def snap_to_frame(ms, fps):
+    """Arredonda tempo em ms para o frame mais proximo (multiplo de frame_ms)."""
+    frame_ms = 1000.0 / fps
+    return round(ms / frame_ms) * frame_ms
 
 
 def modify_vpd_subtitles(vpd_path, blocks_a, blocks_b):
@@ -427,7 +446,7 @@ def modify_vpd_subtitles(vpd_path, blocks_a, blocks_b):
         timeline["subitems"].append({
             "title": title,
             "type": "SubtitleTrack",
-            "status": 0,
+            "status": 1,
             "subitems": blocks,
             "tstart": 0.0,
             "tduration": 1.7976931348623157e308,
@@ -448,6 +467,8 @@ def modify_vpd_subtitles(vpd_path, blocks_a, blocks_b):
         env = ud.get("environment", {})
         env["timelinePlayPos"] = 0.0
         env["timelineVisibleStart"] = 0.0
+        env["expFormat"] = "MP4"
+        env["expVCodec"] = "hevc_nvenc"
         ud["environment"] = env
         with open(userdata_path, "w", encoding="utf-8") as f:
             json.dump(ud, f, indent=4, ensure_ascii=False)
@@ -547,7 +568,7 @@ def main():
     parser.add_argument("--language", default="pt", help="Codigo do idioma (default: pt)")
 
     # Layout
-    parser.add_argument("--max-lines", type=int, default=1, help="Max linhas por tela: 1 ou 2 (default: 1)")
+    parser.add_argument("--max-lines", type=int, default=2, help="Max linhas por tela: 1 ou 2 (default: 2)")
     parser.add_argument("--max-chars", type=int, default=28, help="Max caracteres por linha (default: 28)")
     parser.add_argument("--gap-threshold", type=float, default=1.5, help="Pausa minima (s) para quebrar tela (default: 1.5)")
 
@@ -572,11 +593,11 @@ def main():
     # Ler VPD para dimensoes
     with open(vpd_path, "r", encoding="utf-8") as f:
         vpd_data = json.load(f)
-    project_width, project_height = get_project_dimensions(vpd_data)
+    project_width, project_height, project_fps = get_project_info(vpd_data)
 
     print(f"=== vpd-add-subtitles ===")
     print(f"Projeto: {os.path.basename(vpd_path)}")
-    print(f"Resolucao: {project_width}x{project_height}")
+    print(f"Resolucao: {project_width}x{project_height} @ {project_fps}fps")
 
     # --- Modo teste ASS ---
     if args.test_ass:
@@ -616,7 +637,7 @@ def main():
 
     # 3. Agrupar palavras em telas
     print(f"\n--- Agrupamento ---")
-    screens = group_words_into_screens(words, args.max_lines, args.max_chars, args.gap_threshold)
+    screens = group_words_into_screens(words, args.max_lines, args.max_chars, args.gap_threshold, args.highlight_scale)
     print(f"  Telas geradas: {len(screens)}")
 
     total_words = sum(len(s["words"]) for s in screens)
@@ -647,7 +668,7 @@ def main():
 
     text_blocks = []
     for screen in screens:
-        blocks = create_text_effect_blocks(screen, style_config, project_width, project_height)
+        blocks = create_text_effect_blocks(screen, style_config, project_width, project_height, project_fps)
         text_blocks.extend(blocks)
 
     # 5. Inserir no VPD

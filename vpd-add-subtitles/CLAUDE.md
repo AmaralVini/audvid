@@ -10,7 +10,7 @@ Script Python que adiciona legendas estilo OpusClip (palavra-por-palavra com hig
 
 1. **Detectar audio** — Procura `{projeto}-enhanced.wav` ou `{projeto}-clean.wav` na pasta do projeto (ou usa `--audio`)
 2. **Transcrever com Whisper** — Roda `whisper` CLI com word_timestamps para obter timing por palavra. Salva o JSON como `{audio}-whisper.json` na pasta do projeto. Se o JSON ja existir, reutiliza sem rodar o Whisper novamente
-3. **Agrupar palavras em telas** — Respeita max_chars (28), max_lines (1), e gap_threshold (1.5s) para quebrar telas
+3. **Agrupar palavras em telas** — Respeita max_chars (28), max_lines (2), e gap_threshold (1.5s) para quebrar telas. Calcula ponto de quebra considerando o pior caso (maior palavra da linha destacada a highlight_scale), inserindo `\N` explicito para manter quebra consistente entre blocos
 4. **Carregar estilo** — Le o estilo do VideoProc Vlogger em `AppData/Roaming/Digiarty/VideoProc Vlogger/sub_styles/{nome}.json` e aplica todas as propriedades (fonte, cor, borda, sombra, etc.)
 5. **Gerar TextEffectBlocks** — Um bloco por palavra. Cada bloco mostra o texto completo da tela com ASS override tags na palavra atual (cor + tamanho). 1 bloco = 1 item editavel na timeline
 6. **Inserir no VPD** — Remove SubtitleTracks existentes, cria 2 tracks ("Subtitle A" e "Subtitle B") com blocos intercalados (palavras pares em A, impares em B) para facilitar edicao na GUI
@@ -74,7 +74,7 @@ python3 vpd-add-subtitles/vpd-add-subtitles.py projeto.vpd --test-ass
 
 | Opcao | Descricao | Padrao |
 |-------|-----------|--------|
-| `--max-lines N` | Max linhas por tela (1 ou 2) | 1 |
+| `--max-lines N` | Max linhas por tela (1 ou 2) | 2 |
 | `--max-chars N` | Max caracteres por linha | 28 |
 | `--gap-threshold FLOAT` | Pausa minima (s) para quebrar tela | 1.5 |
 | `--tracks N` | Numero de SubtitleTracks (1 ou 2) | 2 |
