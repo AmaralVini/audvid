@@ -1,0 +1,4 @@
+Planeje. Estou fazendo cortes de vídeos, mas eles estão apresentando cliques/ruídos próximos aos nos pontos de corte. Meu objetivo é criar uma ferramenta para gerar áudios sem ruídos de cada projeto como esse do exemplo. Para isso, quero que a ferramenta identifique todos os pontos de corte do videotrack. Então a ferramenta vai exportar os áudios dos vídeos do videotrack (pode ser que tenha 1 mesmo vídeo ou vários) e cortar os áudios exatamente nos mesmos pontos de corte. Então vai aplicar fadein e fadeout de poucos milisegundos nos trechos de áudio cortados. E por fim montar o áudio completo para coincidir com o videotrack. No final, o áudio deve ter exatamente a mesma duração do videotrack do projeto.
+tenho instalado ferramentas como ffmpeg, audacity, jq e outras. Se necessário, você pode instalar e usar outras ferramentas, avalie as mais apropriadas. 
+
+

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 vpd-enhance-audio.py *.vpd 2>&1)",
+      "Bash(python3 *)",
+      "Bash(python3 * 2>&1)"
+    ]
+  }
+}
