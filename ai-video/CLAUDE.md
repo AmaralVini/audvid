@@ -81,19 +81,21 @@ Content-Type: application/json
 |---|---|---|---|---|
 | `aspectRatio` | string | `"16:9"` | `"16:9"`, `"9:16"` | Only 2 options |
 | `resolution` | string | `"720p"` | `"720p"`, `"1080p"`, `"4k"` | Veo 3+ only (Veo 2 does not support) |
-| `durationSeconds` | string | varies | see table below | `"8"` required for extension, ref images, 1080p, 4K |
+| `durationSeconds` | integer | varies | see table below | **Must be a number, not string.** `8` required for extension, ref images, 1080p, 4K. 720p accepts `4`, `6`, `8` |
 | `personGeneration` | string | varies | `"allow_all"`, `"allow_adult"`, `"dont_allow"` | See details below |
 | `numberOfVideos` | integer | 1 | — | Number of videos per request |
 | `seed` | integer | — | any int | Veo 3 and 2 only, not fully deterministic |
-| `referenceImages` | array | — | up to 3 objects | Veo 3.1 only, requires `durationSeconds: "8"` |
+| `referenceImages` | array | — | up to 3 objects | Veo 3.1 only, requires `durationSeconds: 8` |
 
-### Valid Durations by Model
+### Valid Durations by Model and Resolution
 
-| Model | Valid `durationSeconds` |
-|---|---|
-| Veo 3.1 / 3.1 Fast | `"4"`, `"6"`, `"8"` |
-| Veo 3 / 3 Fast | `"4"`, `"6"`, `"8"` |
-| Veo 2 | `"5"`, `"6"`, `"8"` |
+**Note:** `durationSeconds` must be an integer (number), not a string.
+
+| Model | 720p | 1080p | 4K |
+|---|---|---|---|
+| Veo 3.1 / 3.1 Fast | `4`, `6`, `8` | `8` only | `8` only |
+| Veo 3 / 3 Fast | `4`, `6`, `8` | `8` only | `8` only |
+| Veo 2 | `5`, `6`, `8` | — | — |
 
 ### personGeneration by Model
 
@@ -321,11 +323,71 @@ curl -X PUT "${UPLOAD_URI}" \
 - Only charged for successfully generated videos (safety filter block = no charge)
 - Generation latency: 11s to 6min depending on load
 
+## veo-generate.py — Video Generation CLI
+
+Script that handles the full Veo workflow: submit, poll, and download.
+
+### Usage
+
+```bash
+# Basic (720p, 4s, 16:9)
+python3 ai-video/veo-generate.py "prompt here" -o output.mp4
+
+# Custom resolution and duration
+python3 ai-video/veo-generate.py "prompt" -o video.mp4 --resolution 1080p --duration 8 --aspect-ratio 9:16
+
+# Specific model
+python3 ai-video/veo-generate.py "prompt" -o video.mp4 -m veo-3.1-generate-preview
+
+# Image-to-video (first frame)
+python3 ai-video/veo-generate.py "prompt" -o video.mp4 --image frame.png
+
+# Frame interpolation (first + last frame, Veo 3.1 only)
+python3 ai-video/veo-generate.py "prompt" -o video.mp4 --image first.png --last-frame last.png --duration 8
+
+# Video extension (Veo 3.1 only)
+python3 ai-video/veo-generate.py "prompt" -o video.mp4 --video original.mp4 --duration 8
+
+# Reference images for subject consistency (up to 3, Veo 3.1 only)
+python3 ai-video/veo-generate.py "prompt" -o video.mp4 --ref-images ref1.png ref2.png --duration 8
+
+# Multiple videos + seed
+python3 ai-video/veo-generate.py "prompt" -o video.mp4 --num-videos 2 --seed 42
+
+# Negative prompt
+python3 ai-video/veo-generate.py "prompt" -o video.mp4 --negative-prompt "blurry, low quality"
+```
+
+### All Parameters
+
+| Flag | Default | Description |
+|---|---|---|
+| `prompt` (positional) | — | Video description (required) |
+| `-o`, `--output` | `output.mp4` | Output file path |
+| `-m`, `--model` | `veo-3.1-fast-generate-preview` | Model ID |
+| `--negative-prompt` | — | Elements to exclude |
+| `--aspect-ratio` | `16:9` | `16:9` or `9:16` |
+| `--resolution` | `720p` | `720p`, `1080p`, `4k` |
+| `--duration` | `4` | Duration in seconds |
+| `--person-generation` | `allow_all` | `allow_all`, `allow_adult`, `dont_allow` |
+| `--num-videos` | `1` | Number of videos per request |
+| `--seed` | — | Seed for reproducibility (Veo 2/3 only) |
+| `--image` | — | First frame image path (image-to-video) |
+| `--last-frame` | — | Last frame image path (interpolation) |
+| `--video` | — | Previous video for extension |
+| `--ref-images` | — | Reference image paths (up to 3) |
+| `--poll-interval` | `10` | Polling interval in seconds |
+
+API key is loaded from `GEMINI_API_KEY` env var or from `.env` file in the script directory.
+
+---
+
 ## File Structure
 
 ```
 ai-video/
   .env              # GEMINI_API_KEY (not committed)
   .gitignore        # ignores .env and *.mp4
+  veo-generate.py   # Video generation CLI (submit + poll + download)
   CLAUDE.md         # This file
 ```
