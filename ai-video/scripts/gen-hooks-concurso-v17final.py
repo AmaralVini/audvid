@@ -6,13 +6,13 @@ from urllib.error import HTTPError
 
 API_KEY = os.environ.get("GEMINI_API_KEY") or ""
 if not API_KEY:
-    envfile = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+    envfile = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".env")
     if os.path.exists(envfile):
         for line in open(envfile):
             if line.strip().startswith("GEMINI_API_KEY="):
                 API_KEY = line.strip().split("=", 1)[1].strip().strip('"').strip("'")
 
-OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "hooks-concurso")
+OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "content", "hooks-concurso")
 os.makedirs(OUTDIR, exist_ok=True)
 
 PROMPT = (

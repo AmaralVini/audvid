@@ -4,7 +4,9 @@
 
 Tools for generating videos and images using the Google Gemini API (Veo + Imagen). Credentials in `.env`.
 
-**Default for video generation:** `veo-3.1-fast-generate-preview`, 720p, `durationSeconds: "4"` ($0.15/sec = **$0.60 per video**). Use other models/settings only when explicitly requested.
+**Default for video generation:** `veo-3.1-fast-generate-preview`, 720p, 16:9 (landscape), `durationSeconds: "4"` ($0.15/sec = **$0.60 per video**). Use other models/settings only when explicitly requested.
+
+**Default for image generation:** `gemini-2.5-flash-image`, 16:9 (landscape), up to 1K (**$0.039 per image**). Use other models/settings only when explicitly requested.
 
 ## Credentials
 
@@ -387,8 +389,16 @@ API key is loaded from `GEMINI_API_KEY` env var or from `.env` file in the scrip
 
 ```
 ai-video/
-  .env              # GEMINI_API_KEY (not committed)
-  .gitignore        # ignores .env and *.mp4
-  veo-generate.py   # Video generation CLI (submit + poll + download)
-  CLAUDE.md         # This file
+  .env                                # GEMINI_API_KEY (not committed)
+  .gitignore                          # ignores .env, content/
+  veo-generate.py                     # Video generation CLI (submit + poll + download)
+  CLAUDE.md                           # This file
+  scripts/                            # One-off/batch generation scripts
+    gen-hooks-todolist.py             # Hook images: to-do list theme
+    gen-hooks-dormirmal.py            # Hook images: sleep anxiety theme
+    gen-hooks-concurso.py             # Hook images: concurso theme (20 hooks)
+    gen-hooks-concurso-v17.py         # Hook 17 variations (gemini + imagen)
+    gen-hooks-concurso-v17abc.py      # Hook 17 prompt options A/B/C
+    gen-hooks-concurso-v17final.py    # Hook 17 final version
+  content/                            # Generated images/videos (gitignored)
 ```

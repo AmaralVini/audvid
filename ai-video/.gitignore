@@ -1,4 +1,2 @@
 .env
-*.mp4
-hooks-concurso/
-hooks-todolist/
+content/

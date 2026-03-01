@@ -7,7 +7,7 @@ from urllib.error import HTTPError
 
 API_KEY = os.environ.get("GEMINI_API_KEY") or ""
 if not API_KEY:
-    envfile = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+    envfile = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".env")
     if os.path.exists(envfile):
         for line in open(envfile):
             if line.strip().startswith("GEMINI_API_KEY="):
@@ -15,7 +15,7 @@ if not API_KEY:
 
 MODEL = "gemini-2.5-flash-image"
 ENDPOINT = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent"
-OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "hooks-concurso")
+OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "content", "hooks-concurso")
 os.makedirs(OUTDIR, exist_ok=True)
 
 PROMPTS = {

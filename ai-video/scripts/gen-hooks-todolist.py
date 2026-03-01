@@ -7,7 +7,7 @@ from urllib.request import Request, urlopen
 API_KEY = os.environ["GEMINI_API_KEY"]
 MODEL = "imagen-4.0-fast-generate-001"
 ENDPOINT = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:predict"
-OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "hooks-todolist")
+OUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "content", "hooks-todolist")
 os.makedirs(OUTDIR, exist_ok=True)
 
 PROMPTS = {

@@ -100,7 +100,9 @@ audvid/
   vpd-pipeline.py                  # Parent script: enhance + subtitles
   ai-video/                         # Feature: AI video/image generation
     .env                            # Gemini API key (not committed)
+    veo-generate.py                 # Video generation CLI
     CLAUDE.md                       # Full documentation
+    scripts/                        # One-off/batch generation scripts
   playwright/                       # Shared Playwright infra
     package.json                    # Node dependencies
     package-lock.json
