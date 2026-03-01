@@ -39,10 +39,11 @@ source .env  # loads GEMINI_API_KEY
 
 ### Image (Gemini Native)
 
-| Model ID | Notes |
-|---|---|
-| `gemini-2.5-flash-image` | Fast, image editing, multi-turn |
-| `gemini-3-pro-image-preview` | 4K, advanced reasoning, editing |
+| Model ID | Price/image | Notes |
+|---|---|---|
+| `gemini-2.5-flash-image` | $0.039 (up to 1K) | Fast, image editing, multi-turn |
+| `gemini-3.1-flash-image-preview` | $0.045 (512px), $0.067 (1K), $0.101 (2K), $0.151 (4K) | Fast, multi-resolution |
+| `gemini-3-pro-image-preview` | $0.134 (1K/2K), $0.24 (4K) | 4K, advanced reasoning, editing |
 
 **No free tier** for any video/image model.
 

@@ -42,7 +42,9 @@ def submit(api_key, model, prompt, negative_prompt, aspect_ratio, resolution, du
         instance["image"] = {"inlineData": {"mimeType": mime_for(image_path), "data": read_file_base64(image_path)}}
     if video_path:
         instance["video"] = {"inlineData": {"mimeType": "video/mp4", "data": read_file_base64(video_path)}}
-    params = {"aspectRatio": aspect_ratio, "resolution": resolution, "durationSeconds": duration, "personGeneration": person_generation, "numberOfVideos": num_videos}
+    params = {"aspectRatio": aspect_ratio, "resolution": resolution, "durationSeconds": duration, "personGeneration": person_generation}
+    if num_videos and num_videos > 1:
+        params["numberOfVideos"] = num_videos
     if seed is not None:
         params["seed"] = seed
     if last_frame_path:
