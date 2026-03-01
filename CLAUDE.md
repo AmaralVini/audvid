@@ -1,8 +1,14 @@
+## Language
+
+- **Conversation:** Always respond in Portuguese (pt-BR)
+- **Code:** English (variable names, function names, comments, docstrings)
+- **Prompts for AI APIs:** English (Gemini, Veo, etc.)
+
 # audvid — Audio & Video Tools
 
 ## About
 
-Collection of tools for audio and video processing, focused on editing workflow automation. Runs on **WSL2 (Ubuntu 24.04)** with ffmpeg.
+Collection of tools for audio and video processing, focused on editing workflow automation. Runs on **Windows 11** with ffmpeg.
 
 **Conventions:**
 - Each feature lives in its own folder with a detailed `CLAUDE.md`
@@ -56,33 +62,34 @@ Documentation: [docs/playwright-setup.md](docs/playwright-setup.md)
 
 ---
 
-## Credentials
-
-WSL sudo/admin credentials are in the `.env` file at project root. Use `echo $SUDO_PASS | sudo -S <command>` when elevated permissions are needed. To load: `source .env` or read directly from the file.
-
 ## GPU Environment (Whisper)
 
-- **Miniforge**: `~/miniforge3`
-- **Conda env**: `pt-gpu` (Python 3.12) — activate with `conda activate pt-gpu`
-- **PyTorch**: 2.6.0+cu124
-- **GPU**: NVIDIA RTX 3060 Ti 8GB, CUDA 12.6
+- **Anaconda**: `C:\ProgramData\anaconda3`
+- **Conda env**: `pt-gpu` (Python 3.10) — ativado automaticamente ao abrir o terminal
+- **GPU**: NVIDIA RTX 3060 Ti 8GB
 - **openai-whisper**: installed in `pt-gpu` env
-- **Models**: symlink `~/.cache/whisper` → `/mnt/c/Users/vinia/.cache/whisper` (base.pt, medium.pt, large-v3-turbo.pt)
-- **ffmpeg**: native Linux (apt)
+- **Models**: `C:\Users\vinia\.cache\whisper` (base.pt, medium.pt, large-v3-turbo.pt)
+- **ffmpeg**: `C:\ffmpeg\bin\ffmpeg.exe` (also available via conda env)
 
 ## Dependencies
 
-- **Python 3** (included in Ubuntu 24.04)
-- **ffmpeg** (native Linux via apt + Windows `.exe` accessible via PATH)
-- **Node.js** (for web automation via Playwright)
+- **Python 3.10** (via Anaconda, conda env `pt-gpu`)
+- **ffmpeg 8.0.1** (`C:\ffmpeg\bin\ffmpeg.exe`)
+- **Node.js v24.11.0** (`C:\Program Files\nodejs\node.exe`)
 - **Playwright** (`cd playwright && npm install`)
 - No additional Python packages required (stdlib only)
+
+## Git/GitHub
+
+- GitHub SSH is **NOT configured** on Windows (was configured on WSL2)
+- Use HTTPS for git remotes
 
 ## Documentation
 
 - `docs/vpd-format.md` — .vpd file format: complete JSON structure (reverse engineering)
 - `docs/vpd-vlogger-reference.md` — VideoProc Vlogger program reference: presets, styles, effects, Lua API, codecs
 - `docs/playwright-setup.md` — Playwright setup and authentication flow (storageState)
+- `docs/linux-environment.md` — Previous WSL2/Linux environment configuration (archive)
 
 ## File Structure
 

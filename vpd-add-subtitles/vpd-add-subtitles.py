@@ -44,7 +44,7 @@ def hex_to_ass_color(hex_color):
 # Leitura de estilo do VideoProc Vlogger
 # ---------------------------------------------------------------------------
 
-VLOGGER_STYLES_DIR = "/mnt/c/Users/vinia/AppData/Roaming/Digiarty/VideoProc Vlogger/sub_styles"
+VLOGGER_STYLES_DIR = os.path.join(os.environ.get("APPDATA", ""), "Digiarty", "VideoProc Vlogger", "sub_styles")
 
 
 def load_vlogger_style(style_name):
@@ -97,11 +97,8 @@ def load_vlogger_style(style_name):
 # ---------------------------------------------------------------------------
 
 def find_whisper():
-    """Encontra o binario whisper."""
-    for name in ["whisper", "whisper.exe"]:
-        if shutil.which(name):
-            return name
-    return None
+    """Retorna comando para rodar whisper (usa python -m whisper para evitar shebang errado)."""
+    return [sys.executable, "-m", "whisper"]
 
 
 def parse_whisper_json(json_path):
@@ -139,12 +136,8 @@ def transcribe(audio_path, model, language, vpd_dir):
         print(f"  Palavras: {len(words)}")
         return words
 
-    # Rodar whisper
-    whisper_bin = find_whisper()
-    if not whisper_bin:
-        print("ERRO: whisper nao encontrado no PATH.", file=sys.stderr)
-        print("  Instale: pip install openai-whisper", file=sys.stderr)
-        sys.exit(1)
+    # Rodar whisper via python -m (evita shebang hardcoded do .exe)
+    whisper_cmd = find_whisper()
 
     print(f"  Whisper model: {model}")
     print(f"  Language: {language}")
@@ -152,7 +145,7 @@ def transcribe(audio_path, model, language, vpd_dir):
 
     temp_dir = tempfile.mkdtemp(prefix="vpd_sub_", dir=vpd_dir)
     try:
-        cmd = [whisper_bin, audio_path, "--model", model, "--language", language, "--word_timestamps", "True", "--output_format", "json", "--output_dir", temp_dir]
+        cmd = whisper_cmd + [audio_path, "--model", model, "--language", language, "--word_timestamps", "True", "--output_format", "json", "--output_dir", temp_dir]
 
         result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode != 0:

@@ -9,7 +9,7 @@ Python script that adds OpusClip-style subtitles (word-by-word with highlight) t
 ## How It Works
 
 1. **Detect audio** — Looks for `{project}-enhanced.wav` or `{project}-clean.wav` in the project folder (or uses `--audio`)
-2. **Transcribe with Whisper** — Runs `whisper` CLI with word_timestamps to get per-word timing. Saves JSON as `{audio}-whisper.json` in the project folder. If the JSON already exists, reuses it without running Whisper again
+2. **Transcribe with Whisper** — Runs `python -m whisper` with word_timestamps to get per-word timing. Saves JSON as `{audio}-whisper.json` in the project folder. If the JSON already exists, reuses it without running Whisper again
 3. **Group words into screens** — Respects max_chars (28), max_lines (2), and gap_threshold (1.5s) for screen breaks. Calculates break point considering worst case (largest word on line highlighted at highlight_scale), inserting explicit `\N` to keep line breaks consistent across blocks
 4. **Load style** — Reads the VideoProc Vlogger style from `AppData/Roaming/Digiarty/VideoProc Vlogger/sub_styles/{name}.json` and applies all properties (font, color, border, shadow, etc.)
 5. **Generate TextEffectBlocks** — One block per word. Each block shows the full screen text with ASS override tags on the current word (color + size). 1 block = 1 editable item on the timeline
@@ -87,7 +87,7 @@ python3 vpd-add-subtitles/vpd-add-subtitles.py project.vpd --test-ass
 | `--margin N` | Side margin in pixels | 100 |
 
 The base style (font, color, border, shadow) is loaded from the VideoProc Vlogger JSON file at:
-`/mnt/c/Users/vinia/AppData/Roaming/Digiarty/VideoProc Vlogger/sub_styles/{name}.json`
+`%APPDATA%/Digiarty/VideoProc Vlogger/sub_styles/{name}.json`
 
 ### Test
 
@@ -102,7 +102,7 @@ Whisper saves the result as `{audio}-whisper.json` in the project folder. Subseq
 ## Dependencies
 
 - **Python 3** (stdlib only)
-- **whisper** CLI — available in the `pt-gpu` environment (active by default)
+- **whisper** — runs via `python -m whisper` (uses the same Python env as the script, avoids shebang issues with standalone binary)
 
 ## Files
 
