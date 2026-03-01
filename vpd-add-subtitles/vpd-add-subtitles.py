@@ -256,6 +256,14 @@ def group_words_into_screens(words, max_lines, max_chars, gap_threshold, highlig
         if _is_sentence_end(w["word"]):
             force_new_line = True
 
+        # Virgula: remover do texto e forcar nova tela
+        if w["word"].endswith(","):
+            w["word"] = w["word"].rstrip(",")
+            screens.append(_build_screen(current_lines))
+            current_lines = [[]]
+            current_line_len = 0
+            force_new_line = False
+
     # Ultima tela
     if current_lines[0]:
         screens.append(_build_screen(current_lines))
@@ -318,6 +326,7 @@ def create_text_effect_blocks(screen, style_config, project_width, project_heigh
     ass_highlight = hex_to_ass_color(sc["highlight_color"])
     ass_base = hex_to_ass_color(sc["base_color"])
     highlight_font_size = int(sc["font_size"] * sc["highlight_scale"] / 100)
+    advance_ms = sc.get("advance_ms", 0)
 
     # Style base (ASS) — valores fixos (dialogue sobrescreve tudo)
     base_style = {
@@ -376,7 +385,7 @@ def create_text_effect_blocks(screen, style_config, project_width, project_heigh
             "foreground": 1216461823,
             "status": 1,
             "uuid": block_uuid,
-            "tstart": start_ms,
+            "tstart": max(0, start_ms - advance_ms),
             "tduration": duration_ms,
             "restype": "TextEffectResource",
             "resid": "subtitle_001",
@@ -575,6 +584,7 @@ def main():
     parser.add_argument("--max-lines", type=int, default=2, help="Max linhas por tela: 1 ou 2 (default: 2)")
     parser.add_argument("--max-chars", type=int, default=28, help="Max caracteres por linha (default: 28)")
     parser.add_argument("--gap-threshold", type=float, default=1.5, help="Pausa minima (s) para quebrar tela (default: 1.5)")
+    parser.add_argument("--advance-ms", type=int, default=33, help="Adiantar legendas em ms para sincronizar com a fala (default: 33)")
 
     # Estilo
     parser.add_argument("--style", default="my-style-1", help="Nome do estilo do VideoProc Vlogger (default: my-style-1)")
@@ -664,6 +674,7 @@ def main():
     style_config["highlight_scale"] = args.highlight_scale
     style_config["position_y"] = args.position_y
     style_config["margin"] = args.margin
+    style_config["advance_ms"] = args.advance_ms
     # base_color: cor do texto normal (derivada de f_color ARGB)
     fc = style_config["f_color"]
     r, g, b = (fc >> 16) & 0xFF, (fc >> 8) & 0xFF, fc & 0xFF

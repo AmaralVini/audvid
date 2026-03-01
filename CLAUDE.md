@@ -62,6 +62,14 @@ Documentation: [docs/playwright-setup.md](docs/playwright-setup.md)
 
 ---
 
+## Running Python
+
+**IMPORTANT:** `python3` on Windows triggers the Microsoft Store alias and fails. Always use the full Anaconda path:
+
+```bash
+/c/ProgramData/anaconda3/envs/pt-gpu/python.exe script.py
+```
+
 ## GPU Environment (Whisper)
 
 - **Anaconda**: `C:\ProgramData\anaconda3`
