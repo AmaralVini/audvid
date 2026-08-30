@@ -33,14 +33,15 @@ Full documentation: [vpd-add-subtitles/CLAUDE.md](vpd-add-subtitles/CLAUDE.md)
 
 ### vpd-pipeline.py
 
-Parent script that chains `vpd-enhance-audio` + `vpd-add-subtitles` in a single command. Requires conda env `pt-gpu` activated.
+Parent script that chains `vpd-enhance-audio` + `vpd-add-subtitles` in a single command. Runs with the `torch-gpu` venv interpreter directly (uv-managed venv, no "activate" step):
 
 ```bash
-conda activate pt-gpu
-python3 vpd-pipeline.py project.vpd                    # enhance + subtitles
-python3 vpd-pipeline.py project.vpd --skip-enhance      # subtitles only
-python3 vpd-pipeline.py project.vpd --skip-subtitles    # enhance only
+~/CODE/torch-gpu/.venv/Scripts/python.exe vpd-pipeline.py project.vpd                    # enhance + subtitles
+~/CODE/torch-gpu/.venv/Scripts/python.exe vpd-pipeline.py project.vpd --skip-enhance      # subtitles only
+~/CODE/torch-gpu/.venv/Scripts/python.exe vpd-pipeline.py project.vpd --skip-subtitles    # enhance only
 ```
+
+> **Pending:** transcription is migrating from a directly-loaded `openai-whisper` to the `/transcrever` skill (faster-whisper via the `torch-gpu` venv). `vpd-pipeline.py` and `vpd-add-subtitles` still need to be adapted to call the skill instead of loading whisper on their own.
 
 ### ai-video/
 
@@ -64,25 +65,24 @@ Documentation: [docs/playwright-setup.md](docs/playwright-setup.md)
 
 ## Running Python
 
-**IMPORTANT:** `python3` on Windows triggers the Microsoft Store alias and fails. Always use the full Anaconda path:
+**IMPORTANT:** `python3` on Windows triggers the Microsoft Store alias and fails. Always use the full venv path (`torch-gpu`, uv-managed — there is no "activate" step, call the interpreter directly):
 
 ```bash
-/c/ProgramData/anaconda3/envs/pt-gpu/python.exe script.py
+~/CODE/torch-gpu/.venv/Scripts/python.exe script.py
 ```
 
-## GPU Environment (Whisper)
+## GPU Environment (Transcription)
 
-- **Anaconda**: `C:\ProgramData\anaconda3`
-- **Conda env**: `pt-gpu` (Python 3.10) — ativado automaticamente ao abrir o terminal
+- **venv**: `torch-gpu` (`~/CODE/torch-gpu/.venv`), managed by uv — call `~/CODE/torch-gpu/.venv/Scripts/python.exe` directly, no "activate" step
+- **Python**: 3.12
 - **GPU**: NVIDIA RTX 3060 Ti 8GB
-- **openai-whisper**: installed in `pt-gpu` env
-- **Models**: `C:\Users\vinia\.cache\whisper` (base.pt, medium.pt, large-v3-turbo.pt)
-- **ffmpeg**: `C:\ffmpeg\bin\ffmpeg.exe` (also available via conda env)
+- **Transcription**: via the `/transcrever` skill (faster-whisper / CTranslate2, GPU), replacing the old direct `openai-whisper` load — see the pending item under `vpd-pipeline.py` above
+- **ffmpeg**: from PATH (winget `Gyan.FFmpeg` 9.0.1)
 
 ## Dependencies
 
-- **Python 3.10** (via Anaconda, conda env `pt-gpu`)
-- **ffmpeg 8.0.1** (`C:\ffmpeg\bin\ffmpeg.exe`)
+- **Python 3.12** (via the `torch-gpu` venv, managed by uv)
+- **ffmpeg** (from PATH, winget `Gyan.FFmpeg` 9.0.1)
 - **Node.js v24.11.0** (`C:\Program Files\nodejs\node.exe`)
 - **Playwright** (`cd playwright && npm install`)
 - No additional Python packages required (stdlib only)

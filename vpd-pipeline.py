@@ -3,13 +3,16 @@
 vpd-pipeline — Pipeline completo: enhance audio + legendas
 
 Encadeia vpd-enhance-audio e vpd-add-subtitles em um unico comando.
-Requer conda env pt-gpu ativado para o whisper (vpd-add-subtitles).
+Roda com o interpretador do venv torch-gpu (gerenciado por uv, sem "ativar").
+
+Pendencia: a transcricao (vpd-add-subtitles) ainda carrega o whisper
+diretamente; a decisao e migrar para a skill /transcrever (faster-whisper
+via torch-gpu) em vez de carregar o whisper por conta propria.
 
 Uso:
-    conda activate pt-gpu
-    python3 vpd-pipeline.py projeto.vpd
-    python3 vpd-pipeline.py projeto.vpd --skip-enhance
-    python3 vpd-pipeline.py projeto.vpd --skip-subtitles
+    ~/CODE/torch-gpu/.venv/Scripts/python.exe vpd-pipeline.py projeto.vpd
+    ~/CODE/torch-gpu/.venv/Scripts/python.exe vpd-pipeline.py projeto.vpd --skip-enhance
+    ~/CODE/torch-gpu/.venv/Scripts/python.exe vpd-pipeline.py projeto.vpd --skip-subtitles
 """
 
 import argparse
