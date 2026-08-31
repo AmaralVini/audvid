@@ -1,5 +1,6 @@
 .env
 node_modules/
+__pycache__/
 *-auth.json
 .vscode/
 .conda-env
